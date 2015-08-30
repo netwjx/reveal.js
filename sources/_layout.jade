@@ -14,11 +14,6 @@ html(lang='en')
         .reveal
             .slides
                 block slides
-                    section(data-markdown).
-                        # h1 title
-                        ```
-                        hello world
-                        ```
                     
         script(src='lib/js/head.min.js')
         script(src='js/reveal.js')
@@ -47,7 +42,10 @@ html(lang='en')
                             {
                                 src: 'plugin/highlight/highlight.js'
                                 async: on
-                                condition: -> !!document.querySelector 'pre code'
+                                condition: -> on
+                                callback: ->
+                                    hljs.initHighlightingOnLoad()
+                                    return
                             }
                             {
                                 src: 'plugin/zoom-js/zoom.js'
