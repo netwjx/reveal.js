@@ -1,0 +1,60 @@
+doctype html
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        title jQuery Callbacks and Deferred
+        meta(name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui")
+        block head
+            link(rel="stylesheet" href="css/reveal.css")
+            link(rel="stylesheet" href="css/theme/black.css" id="theme")
+            
+            link(rel="stylesheet" href="lib/css/zenburn.css")
+        
+    body
+        .reveal
+            .slides
+                block slides
+                    section(data-markdown).
+                        # h1 title
+                        ```
+                        hello world
+                        ```
+                    
+        script(src='lib/js/head.min.js')
+        script(src='js/reveal.js')
+        block reveal-init
+            script
+                :coffee
+                    Reveal.initialize
+                        controls: on
+                        progress: on
+                        history: on
+                        center: on
+                        transition: 'slide'
+                        dependencies: [
+                            {
+                                src: 'lib/js/classList.js'
+                                condition: -> !document.body.classList
+                            }
+                            {
+                                src: 'plugin/markdown/marked.js'
+                                condition: -> !!document.querySelector '[data-markdown]'
+                            }
+                            {
+                                src: 'plugin/markdown/markdown.js'
+                                condition: -> !!document.querySelector '[data-markdown]'
+                            }
+                            {
+                                src: 'plugin/highlight/highlight.js'
+                                async: on
+                                condition: -> !!document.querySelector 'pre code'
+                            }
+                            {
+                                src: 'plugin/zoom-js/zoom.js'
+                                async: on
+                            }
+                            {
+                                src: 'plugin/notes/notes.js'
+                                async: on
+                            }
+                        ]
