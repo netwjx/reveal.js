@@ -11,13 +11,7 @@
   <body>
     <div class="reveal">
       <div class="slides">
-        <section data-markdown>
-          # h1 title
-          ```
-          hello world
-          ```
-          
-        </section>
+        <section data-markdown># hello world</section>
       </div>
     </div>
     <script src="lib/js/head.min.js"></script>
@@ -49,7 +43,10 @@
         src: 'plugin/highlight/highlight.js',
         async: true,
         condition: function() {
-          return !!document.querySelector('pre code');
+          return true;
+        },
+        callback: function() {
+          hljs.initHighlightingOnLoad();
         }
       }, {
         src: 'plugin/zoom-js/zoom.js',
