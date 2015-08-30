@@ -28,7 +28,7 @@ module.exports = function(grunt) {
 				files: [{
 					expand: true,
 					cwd: 'sources',
-					src: ['*.jade'],
+					src: ['*.jade', '!_*.jade'],
 					dest: '.',
 					ext: '.html'
 				}]
@@ -144,7 +144,7 @@ module.exports = function(grunt) {
 				files: [ 'index.html']
 			},
 			jade: {
-				files: [ 'sources/**/*.jade' ],
+				files: ['*.jade', '!_*.jade'],
 				tasks: 'jade'
 			}
 		}
