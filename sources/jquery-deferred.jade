@@ -1,0 +1,62 @@
+doctype html
+html(lang='en')
+    head
+        meta(charset='utf-8')
+        title jQuery Callbacks and Deferred
+        meta(name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui")
+        
+        link(rel="stylesheet" href="css/reveal.css")
+        link(rel="stylesheet" href="css/theme/black.css" id="theme")
+        
+        link(rel="stylesheet" href="lib/css/zenburn.css")
+        
+    body
+        .reveal
+            .slides
+                section
+                    h1 jQuery Callback
+                    aside.notes hello world
+                section(data-markdown).
+                    # h1hh11
+                    ```
+                    hello world
+                    ```
+                    
+        script(src='lib/js/head.min.js')
+        script(src='js/reveal.js')
+        script
+            :coffee
+                Reveal.initialize
+                    controls: on
+                    progress: on
+                    history: on
+                    center: on
+                    transition: 'slide'
+                    dependencies: [
+                        {
+                            src: 'lib/js/classList.js'
+                            condition: -> !document.body.classList
+                        }
+                        {
+                            src: 'plugin/markdown/marked.js'
+                            condition: -> !!document.querySelector '[data-markdown]'
+                        }
+                        {
+                            src: 'plugin/markdown/markdown.js'
+                            condition: -> !!document.querySelector '[data-markdown]'
+                        }
+                        {
+                            src: 'plugin/highlight/highlight.js'
+                            async: on
+                            condition: -> !!document.querySelector 'pre code'
+                        }
+                        {
+                            src: 'plugin/zoom-js/zoom.js'
+                            async: on
+                        }
+                        {
+                            src: 'plugin/notes/notes.js'
+                            async: on
+                        }
+                    ]
+                
