@@ -381,8 +381,9 @@ return master.promise();
                 - 2012-12 Promises/A+ [changelog](https://promisesaplus.com/changelog)
                 - 2015-6 ES6 定稿 [http://www.ecma-international.org/ecma-262/6.0/]
             - Deferred 不是 Promise
-            - Deferred 没有异常处理, catch仅能处理reject
-            - Deferred.promise() 外部 API 和 Promise 基本兼容
+            - deferred.promise() 外部 API 和 Promise 兼容
+            - jQuery 3.0
+                - 修改了Deferred 实现, 使和 Promise A/+ 行为一致, 包括新增了 catch 
             
             note:
             40min
