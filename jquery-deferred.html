@@ -15,7 +15,7 @@
           <section data-markdown>
             # jQuery 源码阅读
             
-            ## Deferred, Promise 和 异步编程
+            ## Deferred 和 异步编程
             
           </section>
           <section data-markdown>
@@ -23,7 +23,7 @@
             - 异步编程 回调
             - Deferred 和 Callbacks
             - Deferred 和 Promise
-            
+            - Generator 和 Promise
           </section>
         </section>
         <section>
@@ -35,13 +35,15 @@
                       // 后执行
                   });
                   // 先执行
+                  
             </div>
             <p class="fragment">消息循环, 消息队列</p>
-            <p class="fragment">requestAnimationFrame, setImmediate(node), nextTick(node)</p>
+            <p class="fragment">requestAnimationFrame / setImmediate(node) / nextTick(node)</p>
             <p class="fragment">setTimeout</p>
           </section>
           <section data-markdown>
             ## 实现回调
+            
             ```js
             function get(url, callback){
                 var xhr = new XMLHttpRequest();
@@ -59,6 +61,7 @@
           </section>
           <section data-markdown>
             ## 串联
+            
             ```js
             $.get('/url1', function(data){
                 $.get('/url2', data, function(data){
@@ -68,10 +71,11 @@
                 });
             });
             ```
+                
           </section>
           <section>
-            <h2>串联: 直观的办法</h2>
             <div data-markdown>
+              ## 串联: 直观的办法
               ```js
               waterfall([
                   function(callback){
@@ -90,6 +94,7 @@
                   // result is 'result'
               });
               ```
+                  
               note:
               API多, 根据不同场景选择不同API
               
@@ -100,29 +105,38 @@
         <section>
           <section data-markdown>
             ## jQuery Deferred
-            
-                $.get('/url1').then(function(data){
-                    return $.get('/url2', data);
-                }).then(function(data){
-                    return $.get('/url3', data);
-                }).then(function(){
-                    // url3 response
-                });
+            ```js
+            var url = '//jsbin.com/xuyis/1.json';
+            $.getJSON(url).then(function(data){
+                return $.getJSON(url+'?1');
+            }).then(function(data){
+                return $.getJSON(url+'?2');
+            }).then(function(data){
+                return 'result';
+            });
+            ```
+                
             note:
             20min
+                
+            http://jsbin.com/ralafeyonu/edit?js,console,output
+            
           </section>
           <section data-markdown>
             ## jQuery Deferred 的实现概览
             
             - Deferred
                 - callbacks
-                - pipe
-                - then
-                - deferred
+                - promise
+                    - catch
+                    - pipe, then
+                    - always, promise
+                - deferred = { done:..., reject:... }
+                    - extend(deferred, promise)
             - $.when
             
             note:
-            - pipe 向后兼容, 转接参数到done(args0) fail(args1) progress(args2)
+            - pipe 向后兼容, 和then接近
             - 返回新deferred: newDefer, 行为取决于args0~2的返回值
               - promise: 转接到newDefer
               - 其它: newDefer.resolveWith(this, arguments)
@@ -130,79 +144,79 @@
           <section data-markdown>
             ## jQuery Callbacks 使用示例
             
-                function fn1(value){ console.log(value); }
-                function fn2(value){ console.log('fn2 says: ' + value); }
-                
-                var cbs = $.Callbacks();
-                cbs.add(fn1);
-                cbs.fire('foo!');
-                // foo!
-                cbs.add(fn2);
-                cbs.fire('bar!');
-                // bar!
-                // fn2 says: bar!
+            ```js
+            function fn1(value){ console.log(value); }
+            function fn2(value){ console.log('fn2 says: ' + value); }
+            
+            var cbs = $.Callbacks();
+            cbs.add(fn1);
+            cbs.fire('foo!');
+            // foo!
+            cbs.add(fn2);
+            cbs.fire('bar!');
+            // bar!
+            // fn2 says: bar!
+            ```
                 
             pub/sub
             
             note:
             30min
           </section>
-          <section data-markdown>
-            ## jQuery Callbacks 源码速览
-            ```js
-            jQuery.Callbacks = function( options ) {
-                createOptions(...)
-                var firing, memory, fired, list=[], queue=[], ....
-                fire = function(){
-                    locked = options.once;
-                    fired = firing = true;
-                    for( queue ...){
-                        memory = queue.shift();
-                        while(list...){
-                            if(list[i].apply(memory[0], memory[1]) === false ...){
-                                // break
-                            }
-                        }
-                    }
-                    // reset and clean up
-                },
-                self = {
-                    add: function(){
-                        if(memory){
-                            firingIndex = list.length - 1;
-                            queue.push( memory );
-                        }
-                        (function add(args){
-                            $.each(function(){
-                                if( isFunction ...){
-                                    list.add(arg);
-                                }else{
-                                    add(arg);
-                                }
-                            });
-                        }(arguments));
-                        if ( memory && !firing ) {
-                            fire();
-                        }
-                    },
-                    disable: function() { // 禁用后续的fire和add调用
-                        locked = queue = [];
-                        list = memory = "";
-                    },
-                    lock: function() { // 禁用后续的fire调用
-                        locked = queue = [];
-                        ...
-                    },
-                    fireWith: function(){
-                        args = [ context, args.slice ? args.slice() : args ];
-                        queue.push( args );
-                        ...
-                        fire();
-                    },
-                    remove: ..., has: ..., empty: ..., disabled: ..., locked: ..., fire: ..., fired: ... };
-                return self;
+          <section>
+            <div data-markdown>## jQuery Callbacks 源码速览</div>
+            <pre><code class="js">jQuery.Callbacks = function( options ) {
+    createOptions(...)
+    var firing, memory, fired, list=[], queue=[], ....
+    fire = function(){
+        locked = options.once;
+        fired = firing = true;
+        for( queue ...){
+            memory = queue.shift();
+            while(list...){
+                if(list[i].apply(memory[0], memory[1]) === false ...){
+                    // break
+                }
             }
-            ```
+        }
+        // reset and clean up
+    },
+    self = {
+        add: function(){
+            if(memory){
+                firingIndex = list.length - 1;
+                queue.push( memory );
+            }
+            (function add(args){
+                $.each(function(){
+                    if( isFunction ...){
+                        list.add(arg);
+                    }else{
+                        add(arg);
+                    }
+                });
+            }(arguments));
+            if ( memory && !firing ) {
+                fire();
+            }
+        },
+        disable: function() { // 禁用后续的fire和add调用
+            locked = queue = [];
+            list = memory = "";
+        },
+        lock: function() { // 禁用后续的fire调用
+            locked = queue = [];
+            ...
+        },
+        fireWith: function(){
+            args = [ context, args.slice ? args.slice() : args ];
+            queue.push( args );
+            ...
+            fire();
+        },
+        remove: ..., has: ..., empty: ..., disabled: ..., locked: ..., fire: ..., fired: ... };
+    return self;
+}</code></pre>
           </section>
           <section data-markdown>
             ## jQuery Callbacks options
@@ -215,98 +229,204 @@
             note:
             30min
           </section>
-          <section data-markdown>
-            ## jQuery Deferred 源码速览
-            ```js
-                var tuples = [
-                    [ "notify", "progress", jQuery.Callbacks("memory"), jQuery.Callbacks("memory"), 2 ],
-                    [
-                        "resolve",                       // 0 action
-                        "done",                          // 1 add listener
-                        jQuery.Callbacks("once memory"), // 2 callbacks
-                        jQuery.Callbacks("once memory"), // 3 then handlers
-                        0,                               // 4 argument index
-                        "resolved"                       // 5 [final state]
-                    ],
-                    [ "reject", "fail", jQuery.Callbacks("once memory"), jQuery.Callbacks("once memory"), 1, "rejected" ]
-                ],
-                promise = {
-                    state:..., always:..., catch:..., pipe:...,
-                    then: function(){
-                        return jQuery.Deferred(function(newDefer){
-                            tuples[0 ~ 2][3].add(resolve(0, newDefer, onFulfilled/onRejected, /* newDefer.notifyWith */));
-                        });
-                        function resolve(depth, deferred, handler, special){
-                            return function(){
-                                var that = this, args = arguments,
-                                mightThrow = function(){
-                                    // TODO
-                                },
-                                process = function(){
-                                    try{
-                                        mightThrow()
-                                    }catch(e){
-                                        deferred.rejectWith(
-                                    }
-                                };
-                                if ( depth ) {
-                                    process();
-                                } else {
-                                    window.setTimeout( process );
-                                }
-                            };
-                        }
+          <section>
+            <div data-markdown>
+              ## jQuery Deferred 源码速览 1
+              note:
+              45min
+            </div>
+            <pre><code class="js">var tuples = [
+    [ "notify", "progress", jQuery.Callbacks("memory"), jQuery.Callbacks("memory"), 2 ],
+    [
+        "resolve",                       // 0 action
+        "done",                          // 1 add listener
+        jQuery.Callbacks("once memory"), // 2 callbacks
+        jQuery.Callbacks("once memory"), // 3 then handlers
+        0,                               // 4 argument index
+        "resolved"                       // 5 [final state]
+    ],
+    [ "reject", "fail", jQuery.Callbacks("once memory"), jQuery.Callbacks("once memory"), 1, "rejected" ]
+],</code></pre>
+          </section>
+          <section>
+            <div data-markdown>## jQuery Deferred 源码速览 2</div>
+            <pre><code class="js">promise = {
+    state:..., always:..., catch:..., pipe:...,
+    then: function(onFulfilled, onRejected, onProgress){
+        return jQuery.Deferred(function(newDefer){
+                // 返回新deffered.promise()
+            tuples[0 ~ 2][3].add(resolve(0,
+                newDefer,
+                onFulfilled/onRejected,
+                /* newDefer.notifyWith */));
+        }).promise();
+        function resolve(depth, deferred, handler, special){
+            return function(){
+                var that = this, args = arguments,
+                mightThrow = function(){
+                    returned = handler.apply( that, args );
+                    if(returned.then){
+                        then.call(returned,
+                            resolve( maxDepth, deferred, Identity, special ),
+                            resolve( maxDepth, deferred, Thrower, special )
+                        );
+                    }else{
+                        args = [ returned ];
+                        deferred.resolveWith(that, args)
                     }
                 },
-                deferred = {};
-                $.each(tuples, function(i, tuple){
-                    var list = tuple[ 2 ];
-                    promise.done/fail/progress = list.add;
-                    list.add(tuple[3].fire);
-                    deferred.resolve/reject/notify = function(){ deferred.resolveWith(...) };
-                    deferred.resolveWith = list.fireWith;
-                });
-                jQuery.extend(deferred, promise);
-                
-                if ( func ) {
-                    func.call( deferred, deferred );
+                process = function(){
+                    try{
+                        mightThrow()
+                    }catch(e){
+                        deferred.rejectWith(
+                    }
+                };
+                if ( depth ) {
+                    process();
+                } else {
+                    window.setTimeout( process );
                 }
-                return deferred;
-                
-            ```
-            note:
-            45min
+            };
+        }
+    }
+},</code></pre>
           </section>
-          <section data-markdown>
-            ## jQuery Deferred when 源码速览
-            
+          <section>
+            <div data-markdown>## jQuery Deferred 源码速览 3</div>
+            <pre><code class="js">deferred = {};
+$.each(tuples, function(i, tuple){
+    var list = tuple[ 2 ];         // callbacks
+    promise.done/fail/progress = list.add; 
+    list.add(tuple[3].fire);       // handlers
+    deferred.resolve/reject/notify = function(){ deferred.resolveWith(...) };
+    deferred.resolveWith = list.fireWith;
+});
+jQuery.extend(deferred, promise);
+if ( func ) {
+    func.call( deferred, deferred );
+}
+return deferred;
+</code></pre>
+          </section>
+          <section>
+            <div data-markdown>## jQuery Deferred 源码速览 4</div>
+            <pre><code class="js">var resolveValues = slice.call( arguments ),
+    remaining = resolveValues.length,
+    master = jQuery.Deferred(),
+    updateFunc = function(i, contexts, values){
+        return function(value){
+            if ( !( --remaining ) ) {  // 计数器
+                master.resolveWith( contexts, values );
+            }
+        }
+    }
+    .....;
+for ( ; i < length; i++ ) {
+    resolveValues[ i ].promise()
+        .progress(updateFunc(i, progressContexts, progressValues))
+        .done(updateFunc(i, resolveContexts, resolveValues))
+        .fail(master.reject);
+    // or then ....
+}
+...
+return master.promise();
+</code></pre>
           </section>
         </section>
         <section>
           <section data-markdown>
             ## Promise
             ```js
-            
+            new Promise(function(resolve, reject) {
+                ....
+                resolve(value);
+                // or reject('reason');
+                ....
+            })
+            .then(function(val){
+                    return JSON.parse(val);
+                }, function(err){
+                    console.error(err);
+                })
+            .then(function(val){
+                    console.log(val); // object
+                })
+            .catch(function(err){
+                // 触发异常 后续的then会继续执行
+            })
+            .then(function(){
+                    console.log('All done');
+                })
             ```
+            
+            [html5rocks: JavaScript Promises](http://www.html5rocks.com/en/tutorials/es6/promises/)
+            
             note:
             55min
-            https://github.com/jakearchibald/es6-promise
+            
             
           </section>
           <section data-markdown>
             ## Deferred 和 Promise
             
+            - Deferred 不是 Promise
+            - Deferred API 更多, 没有异常处理, catch仅能处理reject
+            - Deferred.promise() 外部API兼容
+            
           </section>
           <section data-markdown>
-            ## es6 promise
-            https://github.com/petkaantonov/bluebird/tree/master/benchmark
+            ## Promise 的实现
+            
+            - [Q](https://github.com/kriskowal/q)
+            - [when](https://github.com/cujojs/when)
+            - [WinJS](http://msdn.microsoft.com/en-us/library/windows/apps/br211867.aspx)
+            - [rsvp](https://github.com/tildeio/rsvp.js)
+                - 兼容 ES6 Promise
+                - polyfill: [es6-promise](https://github.com/jakearchibald/es6-promise)
+            - [BlueBird](https://github.com/petkaantonov/bluebird)
+                - [性能比较](https://github.com/petkaantonov/bluebird/tree/master/benchmark)
             
           </section>
           <section data-markdown>
             ## generator 和 promise
-            https://github.com/tj/co
-            async/await
+            
+            基于generator, 使用yield关键字
+            
+                function(){
+                    let url = '//jsbin.com/xuyis/1.json';
+                    var data = yield $.getJSON(url);
+                    data = yield $.getJSON(url+'?1');
+                    data = yield $.getJSON(url+'?2');
+                    return 'result';
+                }
+                
+            co, bluebird
+            
           </section>
+          <section data-markdown>
+            ## ES7 async/await
+            
+                async function(){
+                    let url = '//jsbin.com/xuyis/1.json';
+                    var data = await $.getJSON(url);
+                    yield $.getJSON(url+'?1');
+                    yield $.getJSON(url+'?2');
+                    ...
+                }
+            
+          </section>
+        </section>
+        <section>
+          <section data-markdown data-transition="zoom">
+            ## 总结
+            - 回调
+            - jQuery Deferred
+                - jQuery Callbacks
+            - Promise
+            - generator(yield), async/await
+          </section>
+          <section data-markdown data-background-transition="zoom" data-background="#fff">## 完</section>
         </section>
       </div>
     </div>
@@ -314,6 +434,7 @@
     <script src="js/reveal.js"></script>
     <script>(function() {
   Reveal.initialize({
+    width: screen.width,
     controls: true,
     progress: true,
     history: true,
