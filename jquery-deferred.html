@@ -20,8 +20,8 @@
           </section>
           <section data-markdown>
             ## 概要
-            - 异步编程 回调
-            - Deferred 和 Callbacks
+            - 异步回调
+            - Deferred 和 Callbacks 应用和源码解读
             - Deferred 和 Promise
             - Generator 和 Promise
           </section>
@@ -55,8 +55,6 @@
                 };
             }
             ```
-            note:
-            10min
                 
           </section>
           <section data-markdown>
@@ -71,6 +69,8 @@
                 });
             });
             ```
+            note:
+            5min
                 
           </section>
           <section>
@@ -96,6 +96,7 @@
               ```
                   
               note:
+              10min
               API多, 根据不同场景选择不同API
               
             </div>
@@ -116,9 +117,6 @@
             });
             ```
                 
-            note:
-            20min
-                
             http://jsbin.com/ralafeyonu/edit?js,console,output
             
           </section>
@@ -136,6 +134,7 @@
             - $.when
             
             note:
+            10min
             - pipe 向后兼容, 和then接近
             - 返回新deferred: newDefer, 行为取决于args0~2的返回值
               - promise: 转接到newDefer
@@ -160,8 +159,6 @@
                 
             pub/sub
             
-            note:
-            30min
           </section>
           <section>
             <div data-markdown>## jQuery Callbacks 源码速览</div>
@@ -227,13 +224,13 @@
             - `stopOnFalse` 如果有callback反悔false, 不再执行后续的callback
             
             note:
-            30min
+            15min
           </section>
           <section>
             <div data-markdown>
               ## jQuery Deferred 源码速览 1
               note:
-              45min
+              20min
             </div>
             <pre><code class="js">var tuples = [
     [ "notify", "progress", jQuery.Callbacks("memory"), jQuery.Callbacks("memory"), 2 ],
@@ -249,7 +246,11 @@
 ],</code></pre>
           </section>
           <section>
-            <div data-markdown>## jQuery Deferred 源码速览 2</div>
+            <div data-markdown>
+              ## jQuery Deferred 源码速览 2
+              note:
+              25min
+            </div>
             <pre><code class="js">promise = {
     state:..., always:..., catch:..., pipe:...,
     then: function(onFulfilled, onRejected, onProgress){
@@ -293,7 +294,11 @@
 },</code></pre>
           </section>
           <section>
-            <div data-markdown>## jQuery Deferred 源码速览 3</div>
+            <div data-markdown>
+              ## jQuery Deferred 源码速览 3
+              note:
+              30min
+            </div>
             <pre><code class="js">deferred = {};
 $.each(tuples, function(i, tuple){
     var list = tuple[ 2 ];         // callbacks
@@ -310,7 +315,11 @@ return deferred;
 </code></pre>
           </section>
           <section>
-            <div data-markdown>## jQuery Deferred 源码速览 4</div>
+            <div data-markdown>
+              ## jQuery Deferred 源码速览 4
+              note:
+              35min
+            </div>
             <pre><code class="js">var resolveValues = slice.call( arguments ),
     remaining = resolveValues.length,
     master = jQuery.Deferred(),
@@ -362,18 +371,21 @@ return master.promise();
             
             [html5rocks: JavaScript Promises](http://www.html5rocks.com/en/tutorials/es6/promises/)
             
-            note:
-            55min
-            
-            
           </section>
           <section data-markdown>
             ## Deferred 和 Promise
-            
+            - 历史
+                - 2010-2 CommonJS Promises/A, [node-promise](http://github.com/kriszyp/node-promise)
+                - 2011-1 jQuery 1.5 node-promise
+                    - jQuery 1.5 is said to be 'based on the CommonJS Promises/A design'.[CommonJS Promises/A](http://wiki.commonjs.org/wiki/Promises/A)
+                - 2012-12 Promises/A+ [changelog](https://promisesaplus.com/changelog)
+                - 2015-6 ES6 定稿 [http://www.ecma-international.org/ecma-262/6.0/]
             - Deferred 不是 Promise
-            - Deferred API 更多, 没有异常处理, catch仅能处理reject
-            - Deferred.promise() 外部API兼容
+            - Deferred 没有异常处理, catch仅能处理reject
+            - Deferred.promise() 外部 API 和 Promise 基本兼容
             
+            note:
+            40min
           </section>
           <section data-markdown>
             ## Promise 的实现
@@ -414,7 +426,6 @@ return master.promise();
                     yield $.getJSON(url+'?2');
                     ...
                 }
-            
           </section>
         </section>
         <section>
@@ -425,8 +436,15 @@ return master.promise();
                 - jQuery Callbacks
             - Promise
             - generator(yield), async/await
+            
+            note:
+            45min
           </section>
-          <section data-markdown data-background-transition="zoom" data-background="#fff">## 完</section>
+          <section data-markdown data-background-transition="zoom" data-background="#fff">
+            ## 完
+            
+            - 
+          </section>
         </section>
       </div>
     </div>
