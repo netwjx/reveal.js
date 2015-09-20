@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>jQuery Callbacks and Deferred</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/league.css" id="theme">
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <section data-markdown>
+            # jQuery 源码阅读
+            
+            ## Zepto和jQuery
+            
+          </section>
+          <section data-markdown>
+            ## 总览
+            
+            - 设计理念
+            - 性能对比
+            - 兼容程度
+            - 模块
+            
+          </section>
+        </section>
+        <section>
+          <section data-markdown>
+            ## 下载更快
+            
+            size | version
+            ----: | ----
+            9.7K | zepto 1.1.6
+            29.5K | jquery 3.0.0-alpha1
+            29.6K | jquery 2.1.4
+            33.3K | jquery 1.11.3
+            32.7K | jquery 1.9.1
+            
+            min.js gzipped
+            
+          </section>
+          <section data-markdown>
+            ## 执行更快
+                        
+            selector | 比 jQuery
+            ----: | ----
+            `#id` | 快5.9%
+            `.class` | 慢27%
+            `tag` | 慢61%
+            `#id .class` | 慢0.2%
+            `.class tag` | 慢9.4%
+            `#id tag` | 慢30%
+            `.class .class` | 慢1%
+            
+            jQuery 2.1.4, Zepto 1.1.6
+            
+            http://jsperf.com/zepto-vs-jquery-2013/125
+            
+            note:
+            测试html tag多 2个class 1个id
+            
+          </section>
+          <section data-markdown>
+            ## 执行更快
+            
+            DOM creation | 比 jQuery
+            ---- | ----
+            `$('&lt;div id="elemId" class="someClassName">bar&lt;/div>')` | 快76%
+            `$('&lt;div>').attr('id','elemId').addClass('someClassName')` | 慢73%
+            
+            jQuery 2.1.4, Zepto 1.1.6
+            
+            http://jsperf.com/zepto-vs-jquery-element-creation/30
+            
+          </section>
+          <section data-markdown>
+            ## 设计理念
+            
+            - 5~10k
+            - 下载更快
+            - 执行更快?
+            - 聚焦于搞定事情
+                - 目标不是为了完全兼容jQuery
+                
+          </section>
+        </section>
+        <section>
+          <section data-markdown>
+            ## 兼容程度
+            
+            | Zepto 独有的API |
+            | ---- |
+            | fn.live |
+            | fn.concat, fn.forEach, fn.indexOf, fn.reduce |
+            | fn.pluck http://zeptojs.com/#pluck |
+            
+            jQuery 2.1.4, Zepto 1.1.6
+                
+          </section>
+          <section data-markdown>
+            ## 兼容程度
+            
+            | Zepto 没有的API |
+            | ---- |
+            | $.isNumeric, $.makeArray, $.merge, $.noConflict |
+            | $.parseHTML, $.parseXML |
+            | fn.queue, fn.dequeue, fn.clearQueue, fn.finish, fn.stop, fn.slideDown, fn.slide... |
+            | fn.extend, fn.hover |
+            | fn.innerWidth, fn.innerHeight, fn.outerWidth, fn.outerHeight |
+            | fn.nextAll, fn.nextUntil, fn.prevAll, fn.prevUntil |
+            | fn.parentsUntil, fn.removeProp, fn.replaceAll |
+            
+            jQuery 2.1.4, Zepto 1.1.6
+            
+            note:
+            没有表示连额外模块都没有的
+            
+          </section>
+          <section data-markdown>
+            ## 兼容程度
+            
+            - Zepto IE 10+
+            - jQuery
+                - 1.x IE6+
+                - 2.x IE9+
+          </section>
+        </section>
+        <section>
+          <section data-markdown>
+            ## 模块
+            
+            - 默认: DOM, Event, Ajax
+            - 非默认:
+                - animate, browser, os, data(object)
+                - Deferred, Callbacks
+                - selector, end, andSelf
+            - 额外: tap, swipe, pinch
+          </section>
+        </section>
+        <section>
+          <section data-markdown>## 完</section>
+        </section>
+      </div>
+    </div>
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+    <script>(function() {
+  Reveal.initialize({
+    width: screen.width,
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+    transition: 'slide',
+    dependencies: [
+      {
+        src: 'lib/js/classList.js',
+        condition: function() {
+          return !document.body.classList;
+        }
+      }, {
+        src: 'plugin/markdown/marked.js',
+        condition: function() {
+          return !!document.querySelector('[data-markdown]');
+        }
+      }, {
+        src: 'plugin/markdown/markdown.js',
+        condition: function() {
+          return !!document.querySelector('[data-markdown]');
+        }
+      }, {
+        src: 'plugin/highlight/highlight.js',
+        async: true,
+        condition: function() {
+          return true;
+        },
+        callback: function() {
+          hljs.initHighlightingOnLoad();
+        }
+      }, {
+        src: 'plugin/zoom-js/zoom.js',
+        async: true
+      }, {
+        src: 'plugin/notes/notes.js',
+        async: true
+      }
+    ]
+  });
+
+}).call(this);
+
+    </script>
+  </body>
+</html>
