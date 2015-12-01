@@ -1,0 +1,255 @@
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Reveal.js</title>
+        <link rel="stylesheet" href="/css/reveal.css">
+        <link rel="stylesheet" href="/css/theme/league.css" id="theme">
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="/lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+          document.write( '<link rel="stylesheet" href="/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+    </head>
+    <body>
+
+        <div class="reveal">
+            <div class="slides"><section ><section data-markdown><script type="text/template"># Git 工作流
+</script></section><section data-markdown><script type="text/template">
+## 背景
+
+- 1 主仓库 <!-- .element class="fragment" -->
+- 2+ 人共同开发 1 个特性 <!-- .element class="fragment" -->
+  - 代码同步 <!-- .element class="fragment" -->
+- 2~3 个并行开发的特性 <!-- .element class="fragment" -->
+  - 分阶段上线 <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>2min</aside></script></section></section><section ><section data-markdown><script type="text/template">
+## 现有方案之 git-flow
+
+[A successful Git branching model](http://nvie.com/posts/a-successful-git-branching-model/) 围绕 release 的分支策略
+
+[git-flow 备忘清单](http://danielkummer.github.io/git-flow-cheatsheet/index.zh_CN.html) <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>4min</aside></script></section><section data-markdown><script type="text/template">
+## 现有方案之 git-flow
+
+
+
+- 分支增长容易, 删除困难 <!-- .element class="fragment" -->
+- 规则复杂, 开发者约束多 <!-- .element class="fragment" -->
+- 难以并行开发特性 <!-- .element class="fragment" -->
+- CodeReview 容易过大 <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>6min
+
+不稳定的代码合并:
+- 新特性是从develop创建的
+- bugfix 是在release分支中进行的
+- 不稳定的特性会被合并到develop
+- 其他人开发新特性会基于develop, 这时会包含不稳定的代码</aside></script></section><section data-markdown><script type="text/template">
+## 现有方案之 github flow
+
+[Understanding the GitHub Flow](https://guides.github.com/introduction/flow/) 针对每天都发布的项目
+
+- 分支增长容易, 删除困难 <!-- .element class="fragment" -->
+- 我们目前还没自动 deploy <!-- .element class="fragment" -->
+
+优点 <!-- .element class="fragment" -->
+
+- 规则简单 <!-- .element class="fragment" -->
+- CodeReview 友好 <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>8min</aside></script></section></section><section ><section data-markdown><script type="text/template">
+## 上述问题
+
+还有啥办法
+</script></section><section data-markdown><script type="text/template">
+## 目标
+
+- CodeReview 友好 <!-- .element class="fragment" -->
+- 最少的代码发布 <!-- .element class="fragment" -->
+- 最少的开发者约束 <!-- .element class="fragment" -->
+- 最少的主仓库分支数量 <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>10min</aside></script></section></section><section ><section data-markdown><script type="text/template">
+## Git 工作流实施 1
+
+- fork 多仓库
+- master 总是处于可发布状态 (git-flow github-flow)
+
+<aside class="notes" data-markdown>12min</aside></script></section><section data-markdown><script type="text/template">
+## Git 工作流实施 2
+
+简单项目, 1人开发, Fork 为自己的仓库后
+
+1. 从 master 分支创建特性 (github-flow) <!-- .element class="fragment" -->
+1. 开发特性, commit <!-- .element class="fragment" -->
+1. 测试环境部署 <!-- .element class="fragment" -->
+  - 自己仓库:特性分支 <!-- .element class="fragment" -->
+1. 测试通过后 发PR <!-- .element class="fragment" -->
+  - 自己仓库:特性分支 -> 主仓库:master <!-- .element class="fragment" -->
+1. 获得其他人签名后 <!-- .element class="fragment" -->
+  - 网页上 merge 到 master (github-flow) <!-- .element class="fragment" -->
+1. 独立人员把关发布 <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>18min</aside></script></section><section data-markdown><script type="text/template">
+## Git 工作流实施 3
+
+复杂项目, 多人开发, 需要同步他人修改, Fork 为自己的仓库后
+
+- 在主仓库上创建特性分支 <!-- .element class="fragment" -->
+  - 主仓库:foo <!-- .element class="fragment" -->
+- 在自己仓库创建独立特性分支 <!-- .element class="fragment" -->
+  - 基于 主仓库:foo <!-- .element class="fragment" -->
+  - 自己仓库:feature/foo (git-flow) <!-- .element class="fragment" -->
+- 开发特性, 随时commit, 随时push <!-- .element class="fragment" -->
+- 同步其他人修改 <!-- .element class="fragment" -->
+  - git merge origin/foo <!-- .element class="fragment" -->
+- 测试, 发PR, 合并, 发布 <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>26min</aside></script></section></section><section ><section data-markdown><script type="text/template">
+## 一些细节
+
+- Fork syncing
+  - 简单工作流如果PR无法合并 <!-- .element class="fragment" -->
+- 修正和讨论PR <!-- .element class="fragment" -->
+- 二次合并 <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>28min
+
+Fork syncing 失败, 需要手工加上 remote 主仓库, 然后 git merge upstream/master
+
+PR如果没被合并或拒绝, 那么在源分支的修正会自动同步到PR中, 便于对PR进行修正</aside></script></section><section data-markdown><script type="text/template">
+## PR 的细节
+
+- 一个 commit 完成一个步骤
+- 一组 commit 完成一个特性
+- 在标题说明特性
+- 尽量邀请其他人 Review 你的PR
+
+<aside class="notes" data-markdown>30min</aside></script></section><section data-markdown><script type="text/template">
+## CodeReview 的约定
+
+- 命名 逗号 空格: 交给lint工具
+- 潜在问题 深入测试
+- 措辞 "你的" "错的" <!-- .element class="fragment" -->
+  - "不一致" "例外" "临界值" "非预期" "发生异常" <!-- .element class="fragment" -->
+- 整体结构和流程 <!-- .element class="fragment" -->
+- 表面风险 <!-- .element class="fragment" -->
+  - FIXME, Hardcode <!-- .element class="fragment" -->
+- 全局受影响 <!-- .element class="fragment" -->
+- 社交价值 > 审查 <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>32min</aside></script></section><section data-markdown><script type="text/template">
+
+## PR 合并 和 发布
+
+只对主仓库上的PR而言
+
+- 一般由 leader 负责主仓库上的 PR 合并
+- 测试环境 询问过相关测试人员后, 可以自行发布
+- staging 环境一般用于发布简单修正
+- 复杂项目测试时会由QA负责测试和staging环境发布
+- 线上环境发布目前由后端 leader 负责
+
+<aside class="notes" data-markdown>34min</aside></script></section><section data-markdown><script type="text/template">
+## 回滚
+
+重新 git clone; build; deploy? 100+秒
+
+当然不会 <!-- .element class="fragment" -->
+
+发布存档 java war <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>36min</aside></script></section></section><section ><section data-markdown><script type="text/template">
+
+## 目标回顾
+
+- CodeReview 友好 <!-- .element class="fragment" -->
+- 最少的代码发布 <!-- .element class="fragment" -->
+- 最少的开发者约束 <!-- .element class="fragment" -->
+- 最少的主仓库分支数量 <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>38min</aside></script></section><section data-markdown><script type="text/template">
+## 总结
+
+- 背景, 现有方案 <!-- .element class="fragment" -->
+- Git工作流, 简单和复杂 <!-- .element class="fragment" -->
+- 其他细节 约定 和策略 <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>40min</aside></script></section><section data-markdown><script type="text/template">
+## 完
+
+[wiki 演出票务 - 开发环境](http://wiki.sankuai.com/pages/viewpage.action?pageId=371838153)
+
+FAQ
+</script></section></section><section  data-markdown><script type="text/template">
+## 敏捷软件开发宣言
+
+我们一直在实践中探寻更好的软件开发方法，身体力行的同时也帮助他人。由此我们建立了如下价值观：
+
+- 个体和互动 高于 流程和工具
+- 工作的软件 高于 详尽的文档
+- 客户合作 高于 合同谈判
+- 响应变化 高于 遵循计划
+
+也就是说，尽管右项有其价值，我们更重视左项的价值。
+</script></section></div>
+        </div>
+
+        <script src="/lib/js/head.min.js"></script>
+        <script src="/js/reveal.js"></script>
+
+        <script>
+            function extend() {
+              var target = {};
+              for (var i = 0; i < arguments.length; i++) {
+                var source = arguments[i];
+                for (var key in source) {
+                  if (source.hasOwnProperty(key)) {
+                    target[key] = source[key];
+                  }
+                }
+              }
+              return target;
+            }
+
+            // Optional libraries used to extend on reveal.js
+            var deps = [
+              { src: '/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+              { src: '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: '/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+              { src: '/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+              { src: '/plugin/math/math.js', async: true }
+            ];
+
+            // default options to init reveal.js
+            var defaultOptions = {
+              controls: true,
+              progress: true,
+              history: true,
+              center: true,
+              transition: 'default',
+              dependencies: deps
+            };
+
+            // options from URL query string
+            var queryOptions = Reveal.getQueryHash() || {};
+
+            var options = {
+  "theme": "css/theme/league.css",
+  "controls": true,
+  "progress": true,
+  "history": true,
+  "center": true
+};
+            options = extend(defaultOptions, options, queryOptions);
+            Reveal.initialize(options);
+        </script>
+    </body>
+</html>
