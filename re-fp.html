@@ -1,0 +1,414 @@
+
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Reveal.js</title>
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/league.css" id="theme">
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+          document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+    </head>
+    <body>
+
+        <div class="reveal">
+            <div class="slides"><section ><section data-markdown><script type="text/template"># 函数式编程
+</script></section><section data-markdown><script type="text/template">
+## 什么是程序?
+
+- 数据结构 + 算法 <!-- .element class="fragment" -->
+  - 输入 -> 程序 -> 输出 <!-- .element class="fragment" -->
+- 有效组织输入和算法, 达到清晰的表达和逻辑复用 <!-- .element class="fragment" -->
+  - 编程范式 <!-- .element class="fragment" -->
+    - 命令式 <!-- .element class="fragment" -->
+    - 面向对象 <!-- .element class="fragment" -->
+    - 函数式 <!-- .element class="fragment" -->
+    - 相关话题和逻辑式语言 <!-- .element class="fragment" -->
+
+<aside class="notes" data-markdown>如何组织输入和算法, 产生需要的输出</aside></script></section></section><section ><section data-markdown><script type="text/template">
+## 一个简单程序
+
+用户输入2个数，并输入一个操作符。
+
+你根据输入的情况来得出相应的运算结果。
+</script></section><section data-markdown><script type="text/template">
+## 过程式
+
+```c
+static double Foo(char op, double x, double y){
+    switch(op){
+        case '+':
+            return x + y; break;
+        case '-':
+            return x - y; break;
+        case ......
+    }
+}
+```
+</script></section><section data-markdown><script type="text/template">
+## 面向对象
+
+```java
+public interface I操作符 { double 运算(double x, double y); }
+public class 加法:I操作符 {
+    public double 运算(double x, double y){
+        return x + y;
+    }
+}
+public class 减法 ......
+public class OO_Calculator{
+    private I操作符 m_op;
+    public OO_Calculator(I操作符 op) {
+        this.m_op = op; //依赖注入
+    }
+    public double foo(double x, double y) {
+       return this.m_op.运算(x, y);
+    }
+}
+
+I操作符 我的加法 = new 加法();
+OO_Calculator 我的加法器 = new OO_Calculator(我的加法);
+double sum = 我的加法器.foo(3, 4);
+```
+</script></section><section data-markdown><script type="text/template">
+## 面向对象小结
+
+- 所有元素皆是类 <!-- .element class="fragment" -->
+- 类是一组数据和函数的组合 <!-- .element class="fragment" -->
+- 通过创建新的子类, 而不是修改现有类来增加功能 <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 面向对象的世界
+
+- 继承, 重写, 多态, 重载
+- Ioc 控制反转
+- DI 依赖注入
+- Hook
+- AOP 面向切面编程
+- 灵活性的取舍: 设计模式
+</script></section></section><section ><section data-markdown><script type="text/template">
+## 面向对象式 + 函数式
+
+```csharp
+public delegate double TheOperator(double x, double y);
+public class Operators{
+    static public double Add(double x, double y)
+    {
+       return x + y;
+    }
+}
+public class DotNet_Calculator {
+    public double Foo(TheOperator op, double x, double y)
+    {
+       return op(x, y);
+    }
+}
+
+TheOperator myAdd = Operators.Add;
+DotNet_Calculator dc = new DotNet_Calculator();
+double sum = dc.Foo(myAdd, 3, 4);
+```
+</script></section><section data-markdown><script type="text/template">
+## 函数式
+
+```scheme
+(define (Foo op x y)
+    (op x y))
+
+(Foo + 1 2) = 3
+```
+
+- 函数是一级对象 <!-- .element class="fragment" -->
+  - 上述例子中的 + 1 2 都是函数, 返回值 3 也是函数 <!-- .element class="fragment" -->
+- 函数作为参数传递给其它的函数 <!-- .element class="fragment" -->
+  - Higher-order function 高阶函数 <!-- .element class="fragment" -->
+  - 也可以作为返回值 <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 函数式和面向对象外在区别
+
+- 一个对象
+  - 一组相同的函数上面, 外加不同的数据 <!-- .element class="fragment" -->
+- 一个Closure <!-- .element class="fragment" -->
+  - 一组相同的数据, 外加不同的操作 <!-- .element class="fragment" -->
+</script></section></section><section ><section data-markdown><script type="text/template">
+## 函数式的世界
+
+- Higher-order function 高阶函数 <!-- .element class="fragment" -->
+  - Currying 科里化, Partial 偏函数 <!-- .element class="fragment" -->
+- Closure 闭包 <!-- .element class="fragment" -->
+  - Immutable Data 不可变数据 <!-- .element class="fragment" -->
+    - 并行化, 无副作用 <!-- .element class="fragment" -->
+  - MapReduce <!-- .element class="fragment" -->
+- Recursing 递归 <!-- .element class="fragment" -->
+  - 惰性求值 <!-- .element class="fragment" -->
+  - 尾递归优化 <!-- .element class="fragment" -->
+- Pattern Matching 模式匹配 <!-- .element class="fragment" -->
+- Functional Reactive Programming <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 函数式的世界 - 科里化
+
+```js
+function func(a, b, c){ .... }
+
+func(1, 2, 3);
+
+var func1 = func(1);
+var func12 = func1(2);
+func12(3);
+```
+
+- 面向对象中的适配器模式, Builder模式 <!-- .element class="fragment" -->
+- 偏函数 <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 函数式的世界 - 闭包
+
+```js
+function MyObject(x){
+    this.x = foo;
+}
+var obj = new MyObject(1);
+obj.foo();
+
+function myClosure(x, y){
+    return {
+        foo: function(){
+            return x + y;
+        }
+    };
+}
+```
+
+真正的私有作用域 <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 函数式的世界 - MapReduce
+
+```js
+var ary = [1, 2, 3], max = ary[0];
+for (var i = 1; i < ary.length; i++) {
+    if(ary[i] > max) {
+        max = ary[i];
+    }
+}
+
+[1, 2, 3].reduce(function(a, b){
+    return a > b ? a : b;
+});
+```
+
+- 能够把2个输入处理成一个输出的操作 <!-- .element class="fragment" -->
+- 反复执行这个操作 <!-- .element class="fragment" -->
+- 采用100函数在一个数据结构上操作，远远优于采用 10个操作在十个数据结构 上工作 <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 函数式的世界 - 尾递归优化
+
+```js
+function factorial(n, x, y){
+    if(n < 2){
+        return x;
+    }
+    return factorial(n - 1, y, x + y);
+}
+factorial(10, 1, 1);
+```
+
+- 不用担心堆栈溢出 <!-- .element class="fragment" -->
+- 传统语言完全可以实现 <!-- .element class="fragment" -->
+- 纯函数语言只能用递归实现循环 <!-- .element class="fragment" -->
+</script></section></section><section ><section data-markdown><script type="text/template">
+## 函数式的世界 - Rx
+
+Reactive Programming 反应型编程
+
+```js
+a = b + c
+```
+
+- 描述数据(消息)流结构关系 <!-- .element class="fragment" -->
+- 不关心环境如何导致数据流变化, 以及变化之后的数据流又影响到其它相关数据流  <!-- .element class="fragment" -->
+- 即时反应变化 <!-- .element class="fragment" -->
+- 非同步, 一般通过观察者模式实现 <!-- .element class="fragment" -->
+- 异步数据流编程 <!-- .element class="fragment" -->
+
+</script></section><section data-markdown><script type="text/template">
+## 函数式的世界 - FRP
+
+Functional Reactive Programming 函数式反应型编程
+
+```js
+// RxJS
+var keyup = Rx.Observable.fromEvent($input, 'keyup')
+  .debounce(750)
+  .map(e => e.target.value)
+  .distinctUntilChanged();
+
+var searcher = keyup.flatMapLatest(
+    word => $.ajax({ data:{ word: word } }).promise()
+);
+searcher.subscribe(function(data){
+    append...
+});
+```
+
+- 直观和灵活的表达形式  <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 函数式的世界 - FRP 历史
+
+- 1997年 《Functional Reactive Animation》 <!-- .element class="fragment" -->
+  - 并且用Haskell实现FRP <!-- .element class="fragment" -->
+- React, Flux <!-- .element class="fragment" -->
+- <!-- .element class="fragment" --> [RxJS](https://github.com/Reactive-Extensions/RxJS),  [Bacon.js](https://baconjs.github.io/)
+
+<aside class="notes" data-markdown>https://facebook.github.io/flux/docs/overview.html
+
+functional reactive programming, or more specifically data-flow programming or flow-based programming</aside></script></section><section data-markdown><script type="text/template">
+## 前端开发中应用函数式
+
+- <!-- .element class="fragment" --> [lodash](https://lodash.com/), [Underscore](http://underscorejs.org/)
+- <!-- .element class="fragment" --> [lazy.js](https://www.npmjs.com/package/lazy.js)
+
+问题 <!-- .element class="fragment" -->
+
+- 性能 <!-- .element class="fragment" -->
+- 纯函数语言的思维模式 <!-- .element class="fragment" -->
+  - 不可变数据 <!-- .element class="fragment" -->
+  - 递归 <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 函数式的世界 - 总结
+
+- 函数是一级对象
+- 给一个函数相同的输入, 就能得到相同的输出, 函数相当于一个在Map中检索 <!-- .element class="fragment" -->
+  - 不能与外部的, 全局的东西关联 <!-- .element class="fragment" -->
+  - 闭包 <!-- .element class="fragment" -->
+- 把函数当成变量来用，关注于描述问题而不是怎么实现 <!-- .element class="fragment" -->
+  - 偏重数学的表达形式 <!-- .element class="fragment" -->
+- 在简单的数据结构上应用不同的函数来操作 <!-- .element class="fragment" -->
+</script></section></section><section ><section data-markdown><script type="text/template">
+## 回顾: 面向对象的世界
+
+- 继承, 重写, 多态, 重载
+- Ioc 控制反转
+- DI 依赖注入
+- Hook
+- AOP 面向切面编程
+- 灵活性的取舍: 设计模式
+</script></section><section data-markdown><script type="text/template">
+## 面向对象的本质
+
+- 独特的数据结构 <!-- .element class="fragment" -->
+  - 领域建模 <!-- .element class="fragment" -->
+- 函数表 <!-- .element class="fragment" -->
+  - 名字空间, 名字叠加, 查找, 冲突 <!-- .element class="fragment" -->
+    - 提倡继承, 重写, 多态 <!-- .element class="fragment" -->
+  - 隐式传参 <!-- .element class="fragment" -->
+    - this, super <!-- .element class="fragment" -->
+- 通过设计弥补语言的表达能力 <!-- .element class="fragment" -->
+  - 提倡用组合和接口替代继承 <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 业内对传统语言的吐槽
+
+类 <!-- .element class="fragment" -->
+
+- 函数和数据绑定 <!-- .element class="fragment" -->
+- 粒度大 相对于函数式 <!-- .element class="fragment" -->
+
+多态 <!-- .element class="fragment" -->
+
+- 鸭子类型 <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 业内对传统语言的吐槽
+
+
+[为什么继承是有害](http://www.cnblogs.com/zxsoft/archive/2007/08/22/866104.html)
+
+- 耦合和脆基类问题 <!-- .element class="fragment" -->
+- 设计模式: 多用组合, 少用继承 <!-- .element class="fragment" -->
+  - 重量级 <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 业内对传统语言的吐槽
+
+[Java语言学校的危险性](http://www.ruanyifeng.com/blog/2008/12/the_perils_of_javaschools.html)
+
+- 如果你不懂函数式编程，你就无法创造出MapReduce[7]，正是这种算法使得Google的可扩展性（scalable）达到如此巨大的规模。 <!-- .element class="fragment" -->
+- 单词"Map"（映射）和"Reduce"（化简）分别来自Lisp语言和函数式编程。 <!-- .element class="fragment" -->
+- 回想起来，在类似6.001这样的编程课程中，都有提到纯粹的函数式编程没有副作用，因此可以直接用于并行计算（parallelizable）。 <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 业内对传统语言的吐槽
+
+[你的编程语言能这样做吗？](http://www.vaikan.com/can-your-programming-language-do-this/)
+
+- 最高效的语言开发环境应该是一种 能让你在不同层次上进行抽象归纳 的语言环境。 <!-- .element class="fragment" -->
+  - 笨拙陈旧的FORTRAN语言甚至不允许你写函数。 <!-- .element class="fragment" -->
+  - C语言里有函数指针，但实现的很丑陋，不能匿名，使用之前必须先进行声明实现。 <!-- .element class="fragment" -->
+  - Java允许你使用功能点调用(functor)，但更加丑陋。就像Steve Yegge指出的，Java就是一个名词的王国。 <!-- .element class="fragment" -->
+</script></section></section><section ><section data-markdown><script type="text/template">
+## 决择
+
+- 如果以为你有一个锤子，就把所有东西都当成钉子，这明显是不对的。 <!-- .element class="fragment" -->
+- 不要让世界适应你的模型。让你的模型适应世界。 <!-- .element class="fragment" -->
+</script></section><section data-markdown><script type="text/template">
+## 更多
+
+逻辑式语言 Prolog <!-- .element class="fragment" -->
+</script></section></section><section  data-markdown><script type="text/template">
+## 完
+
+FAQ
+</script></section></div>
+        </div>
+
+        <script src="/lib/js/head.min.js"></script>
+        <script src="/js/reveal.js"></script>
+
+        <script>
+            function extend() {
+              var target = {};
+              for (var i = 0; i < arguments.length; i++) {
+                var source = arguments[i];
+                for (var key in source) {
+                  if (source.hasOwnProperty(key)) {
+                    target[key] = source[key];
+                  }
+                }
+              }
+              return target;
+            }
+
+            // Optional libraries used to extend on reveal.js
+            var deps = [
+              { src: '/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+              { src: '/plugin/markdown/marked.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: '/plugin/markdown/markdown.js', condition: function() { return !!document.querySelector('[data-markdown]'); } },
+              { src: '/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+              { src: '/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } },
+              { src: '/plugin/math/math.js', async: true }
+            ];
+
+            // default options to init reveal.js
+            var defaultOptions = {
+              controls: true,
+              progress: true,
+              history: true,
+              center: true,
+              transition: 'default',
+              dependencies: deps
+            };
+
+            // options from URL query string
+            var queryOptions = Reveal.getQueryHash() || {};
+
+            var options = {
+  "theme": "css/theme/league.css",
+  "controls": true,
+  "progress": true,
+  "history": true,
+  "center": true
+};
+            options = extend(defaultOptions, options, queryOptions);
+            Reveal.initialize(options);
+        </script>
+    </body>
+</html>
